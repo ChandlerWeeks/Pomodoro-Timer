@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { unlockSound } from "./sound.ts";
+import MusicSelectionForm from "./MusicSelectionForm.tsx";
 
 interface TimerFormProps {
-  setClock: (minutes: number, seconds: number) => void;
+  setClock: (minutes: number, seconds: number, playlistName: string) => void;
 }
 
 function TimerForm({setClock} : TimerFormProps) {
@@ -12,13 +13,14 @@ function TimerForm({setClock} : TimerFormProps) {
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     unlockSound();
-    setClock(Number(minutes), Number(seconds));
+    const playlistName = String(new FormData(event.currentTarget).get("playlist") ?? "");
+    setClock(Number(minutes), Number(seconds), playlistName);
   }
 
   return(
     <>
-      <div className="flex min-h-screen justify-center items-center flex-col">
-        <div className="border-1 border-black border-full p-10 rounded-md">
+      <div className="flex min-h-screen justify-center items-center flex-col bg-gray-200">
+        <div className="border-1 border-black border-full p-10 rounded-md bg-white">
           <h1 className="text-4xl mb-8">Enter Timer Duration</h1>
           <form id="durationForm" onSubmit={handleSubmit}>
             <div className="flex justify-center items-center w-2xs">
@@ -30,6 +32,8 @@ function TimerForm({setClock} : TimerFormProps) {
               <label htmlFor="seconds" className="w-2/5">Seconds:  </label>
               <input type="number" value={seconds} onChange={e => setSeconds(e.target.value)} className="border-solid border-black border-1 px-2 rounded-sm w-9/10" id="seconds" name="seconds" max="59" min="0"/>
             </div>
+
+            <MusicSelectionForm />
 
             <div className="mt-4 flex justify-center items-center">
               <input className="hover:bg-gray-100 mt-4 text-center border-solid border-black border-1 px-4 py-2 cursor-pointer rounded-sm" type="submit" value="submit"></input>
