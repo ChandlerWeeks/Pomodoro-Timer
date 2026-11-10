@@ -1,0 +1,12 @@
+# Dependencies and build output
+node_modules/
+dist/
+
+# Logs
+*.log
+
+# Secrets (the backend loads .env through dotenv)
+.env
+.env.*
+
+.DS_Store
