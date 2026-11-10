@@ -10,3 +10,6 @@ dist/
 .env.*
 
 .DS_Store
+
+# Music, playlists, and catalog are kept out of the repo
+backend/music_api/data/

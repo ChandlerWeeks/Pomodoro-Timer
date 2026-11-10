@@ -46,13 +46,7 @@ All routes start with `/api`.
 | `GET /credits/:playlistId` | Credits for one playlist. |
 | `GET /credits/:playlistId/:songId` | Credits for one song. |
 
-The playlists come from `backend/music_api/data/playlist.json`, and the song details come from `backend/music_api/data/catalog.json`.
-
 ## Music and credits
-
-`backend/music_api/data/music/` holds a small development copy of the music: 3 songs per playlist.
-`backend/music_api/bin/pull-dev-data.sh` copies more songs from the home server, so it only works with access to that server.
 
 The music comes from Purrple Cat, Chris Zabriskie, and Freesound contributors, under Creative Commons licenses.
 The licenses require credit for the artists, so the credits must stay visible in the app.
-See `backend/music_api/data/music/CREDITS.md` for each song's artist, source, and license.
