@@ -63,7 +63,7 @@ function Timer({minutes, seconds, playlistName, disableTimerCallback} : TimeProp
   return(
     <>
       <div className="flex min-h-screen justify-center items-center flex-col border-full bg-gray-100">
-        <div className="border-full border-black border-1 p-12 rounded-md bg-white">
+        <div className="border-full border-black border-1 p-12 rounded-md bg-white w-120">
           <div>
             <h1 className="text-4xl">Pomodoro Timer</h1>
           </div>
@@ -90,7 +90,7 @@ function Timer({minutes, seconds, playlistName, disableTimerCallback} : TimeProp
                 />
               </svg>
               <div className="absolute text-center">
-                <p className="text-8xl text-center">
+                <p className="text-8xl text-center .suze-mono">
                   {Math.floor(remainingMinutes)}:{String(remainingSeconds % 60).padStart(2, '0')}
                 </p>
               </div>

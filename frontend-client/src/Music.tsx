@@ -44,7 +44,7 @@ function MusicPlayer({ playlistName, queue }: MusicPlayerProps) {
 
   return (
     <div className="flex flex-col items-center mt-6 gap-2">
-      <p>Now playing: {queue[index].trackName}</p>
+      <p className="text-wrapped">Now playing: {queue[index].trackName}</p>
       <div className="flex gap-2">
         <button type="button" className={buttonClass} onClick={() => skip(-1)}>Previous</button>
         <button type="button" className={buttonClass} onClick={togglePause}>{isPaused ? "Play" : "Pause"}</button>
