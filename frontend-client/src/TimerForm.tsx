@@ -19,7 +19,7 @@ function TimerForm({setClock} : TimerFormProps) {
 
   return(
     <>
-      <div className="flex min-h-screen justify-center items-center flex-col bg-gray-200">
+      <div className="flex min-h-screen justify-center items-center flex-col bg-gray-100">
         <div className="border-1 border-black border-full p-10 rounded-md bg-white">
           <h1 className="text-4xl mb-8">Enter Timer Duration</h1>
           <form id="durationForm" onSubmit={handleSubmit}>

@@ -54,6 +54,9 @@ function MusicPlayer({ playlistName, queue }: MusicPlayerProps) {
         <label htmlFor="volume">Volume:</label>
         <input type="range" id="volume" min="0" max="1" step="0.01" defaultValue={getSongVolume()} onChange={e => setSongVolume(Number(e.target.value))} />
       </div>
+      <div className="flex items-center gap-2">
+
+      </div>
     </div>
   )
 }

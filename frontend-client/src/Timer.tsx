@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { playBubble } from './sound.ts';
-import MusicPlayer, { type Song } from './music.tsx';
+import MusicPlayer, { type Song } from './Music.tsx';
 
 interface TimeProps {
   minutes: number;
@@ -62,7 +62,7 @@ function Timer({minutes, seconds, playlistName, disableTimerCallback} : TimeProp
 
   return(
     <>
-      <div className="flex min-h-screen justify-center items-center flex-col border-full bg-gray-200">
+      <div className="flex min-h-screen justify-center items-center flex-col border-full bg-gray-100">
         <div className="border-full border-black border-1 p-12 rounded-md bg-white">
           <div>
             <h1 className="text-4xl">Pomodoro Timer</h1>
