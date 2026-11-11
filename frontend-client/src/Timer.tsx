@@ -16,6 +16,7 @@ function Timer({minutes, seconds, playlistName, disableTimerCallback} : TimeProp
   const [musicQueue, setMusicQueue] = useState<Song[]>([]);
 
   async function getSongQueue() {
+    if (!playlistName) return;
     const res = await fetch(`http://localhost:3000/api/playlists/${playlistName}/songs`);
     const songQueueJSON = await res.json();
 

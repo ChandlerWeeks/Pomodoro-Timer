@@ -1,13 +1,14 @@
 const path = require("path");
 
-const playlists = require('../data/playlist.json');
-const songs = require("../data/catalog.json");
+const { getLibrary } = require("../lib/library.js");
 
 const getPlaylists = (req, res) => {
+  const { playlists } = getLibrary();
   return res.send(playlists);
 };
 
 const getPlaylist = (req, res) => {
+  const { playlists } = getLibrary();
   const id = req.params.id;
   const playlist = playlists.find(p => p.id === id);
 
@@ -18,6 +19,7 @@ const getPlaylist = (req, res) => {
 };
 
 const getSong = (req, res) => {
+  const { playlists, songs } = getLibrary();
   const playlistId = req.params.playlistId;
   const songId = req.params.songId;
 
@@ -26,7 +28,6 @@ const getSong = (req, res) => {
     return res.status(404).json({error: `No playlist titled: ${playlistId}`})
   }
   const song = songs[`${playlistId}-${songId}`];
-  console.log(`${playlistId}-${songId}`);
   if (!song) {
     return res.status(404).json({error: `No song: ${songId}`})
   }
@@ -36,6 +37,7 @@ const getSong = (req, res) => {
 
 // get the songs in a playlist: Generate a queue on music.
 const getSongs = (req, res) => {
+  const { playlists, songs } = getLibrary();
   const playlistId = req.params.playlistId;
   const playlist = playlists.find(p => p.id === playlistId);
   if (!playlist) {

@@ -12,4 +12,6 @@ dist/
 .DS_Store
 
 # Music, playlists, and catalog are kept out of the repo
-backend/music_api/data/
+backend/music_api/data/**
+!backend/music_api/data/music/
+!backend/music_api/data/music/.gitkeep

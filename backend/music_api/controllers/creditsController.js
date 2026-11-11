@@ -1,13 +1,15 @@
-const songs = require("../data/catalog.json");
+const { getLibrary } = require("../lib/library.js");
 
 const credit = ({ id, playlist, title, artist, album, attribution }) =>
   ({ id, playlist, title, artist, album, ...attribution });
 
 const getCredits = (req, res) => {
+  const { songs } = getLibrary();
   res.send(Object.values(songs).map(credit));
 };
 
 const getPlaylistCredits = (req, res) => {
+  const { songs } = getLibrary();
   const playlistId = req.params.playlistId;
   const credits = Object.values(songs).filter(s => s.playlist === playlistId).map(credit);
 
@@ -18,6 +20,7 @@ const getPlaylistCredits = (req, res) => {
 };
 
 const getSongCredits = (req, res) => {
+  const { songs } = getLibrary();
   const song = songs[`${req.params.playlistId}-${req.params.songId}`];
 
   if (!song) {

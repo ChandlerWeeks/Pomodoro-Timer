@@ -1,0 +1,21 @@
+services:
+  frontend:
+    build:
+      context: .
+    init: true
+    ports:
+      - "127.0.0.1:5173:5173"
+    volumes:
+      - ./src:/home/node/app/src:ro
+      - ./public:/home/node/app/public:ro
+      - ./index.html:/home/node/app/index.html:ro
+      - ./vite.config.ts:/home/node/app/vite.config.ts:ro
+      - ./tsconfig.json:/home/node/app/tsconfig.json:ro
+      - ./tsconfig.app.json:/home/node/app/tsconfig.app.json:ro
+      - ./tsconfig.node.json:/home/node/app/tsconfig.node.json:ro
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5173').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s

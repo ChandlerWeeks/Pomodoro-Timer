@@ -1,0 +1,11 @@
+name: pomodoro-timer
+
+include:
+  - backend/music_api/compose.yaml
+  - frontend-client/compose.yaml
+
+services:
+  frontend:
+    depends_on:
+      backend:
+        condition: service_healthy
