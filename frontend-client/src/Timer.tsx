@@ -62,10 +62,10 @@ function Timer({minutes, seconds, playlistName, disableTimerCallback} : TimeProp
 
   return(
     <>
-      <div className="flex min-h-screen justify-center items-center flex-col border-full bg-gray-100">
+      <div className="flex flex-1 justify-center items-center flex-col border-full bg-gray-100">
         <div className="border-full border-black border-1 p-12 rounded-md bg-white w-120">
-          <div>
-            <h1 className="text-4xl">Pomodoro Timer</h1>
+          <div className='w-full'>
+            <h1 className="text-4xl text-center w-full">Pomodoro Timer</h1>
           </div>
           <div className="pt-10">
             <div className="aspect-square relative flex items-center justify-center">
@@ -74,7 +74,7 @@ function Timer({minutes, seconds, playlistName, disableTimerCallback} : TimeProp
                   cx="50"
                   cy="50"
                   r="50"
-                  className="stroke-green-800 fill-none"
+                  className="stroke-red-800 fill-none"
                   stroke-width="8"
                 />
                 <circle
@@ -82,7 +82,7 @@ function Timer({minutes, seconds, playlistName, disableTimerCallback} : TimeProp
                   cx="50"
                   cy="50"
                   r="50"
-                  className="stroke-green-400 fill-none"
+                  className="stroke-red-400 fill-none"
                   stroke-width="8"
                   stroke-dasharray={circumference}
                   stroke-dashoffset={ circumference * (1 - percentageReamining)}
@@ -90,7 +90,7 @@ function Timer({minutes, seconds, playlistName, disableTimerCallback} : TimeProp
                 />
               </svg>
               <div className="absolute text-center">
-                <p className="text-8xl text-center .suze-mono">
+                <p className="text-8xl text-center suse-mono">
                   {Math.floor(remainingMinutes)}:{String(remainingSeconds % 60).padStart(2, '0')}
                 </p>
               </div>

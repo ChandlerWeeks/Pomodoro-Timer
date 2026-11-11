@@ -21,16 +21,19 @@ function MusicSelectionForm() {
     loadPlaylists()
   }, [])
 
-  // Each option's value is the song URL, so TimerForm can read it straight off the submitted form.
+  // Radios styled as buttons: the browser keeps one checked, CSS highlights it, and TimerForm reads it from the form as "playlist".
   return (
-    <div className="p-4">
-      <label htmlFor="song-select">Select a playlist: </label>
-      <select name="playlist" id="song-select" className="border-full border-black border-1 rounded-sm p-2">
-        {playlists.map((playlist) => (
-          <option key={playlist.id}> { playlist.id }</option>
+    <fieldset className="p-4">
+      <legend className="w-full text-center mt-4">Select a playlist</legend>
+      <div className="grid grid-cols-2 gap-2 mt-2">
+        {playlists.map((playlist, i) => (
+          <label key={playlist.id} className="text-center border-black border-1 rounded-sm px-2 py-1 cursor-pointer not-has-checked:hover:bg-gray-100 has-checked:bg-black has-checked:text-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2">
+            <input type="radio" name="playlist" value={playlist.id} defaultChecked={i === 0} className="sr-only" />
+            {playlist.id}
+          </label>
         ))}
-      </select>
-    </div>
+      </div>
+    </fieldset>
   )
 }
 

@@ -19,16 +19,16 @@ function TimerForm({setClock} : TimerFormProps) {
 
   return(
     <>
-      <div className="flex min-h-screen justify-center items-center flex-col bg-gray-100">
+      <div className="flex flex-1 justify-center items-center flex-col bg-gray-100">
         <div className="border-1 border-black border-full p-10 rounded-md bg-white">
           <h1 className="text-4xl mb-8">Enter Timer Duration</h1>
           <form id="durationForm" onSubmit={handleSubmit}>
-            <div className="flex justify-center items-center w-2xs">
+            <div className="flex justify-center items-center w-sm">
               <label htmlFor="minutes" className="w-2/5">Minutes:  </label>
               <input type="number" value={minutes} placeholder="00" onChange={e => setMinutes(e.target.value)} className="border-solid border-black border-1 px-2 rounded-sm w-9/10" id="minutes" name="minutes" max="60" min="0"/>
             </div>
 
-            <div className="flex justify-center items-center mt-2 w-2xs">
+            <div className="flex justify-center items-center mt-2 w-sm">
               <label htmlFor="seconds" className="w-2/5">Seconds:  </label>
               <input type="number" value={seconds} placeholder="00" onChange={e => setSeconds(e.target.value)} className="border-solid border-black border-1 px-2 rounded-sm w-9/10" id="seconds" name="seconds" max="59" min="0"/>
             </div>
