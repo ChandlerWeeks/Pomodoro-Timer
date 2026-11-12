@@ -1,0 +1,135 @@
+name: Deploy Pomodoro
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Prevent overlapping deployments without interrupting an active one.
+concurrency:
+  group: pomodoro-production
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Build and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out the triggering commit
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "26"
+          cache: npm
+          cache-dependency-path: |
+            frontend-client/package-lock.json
+            backend/music_api/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci --prefix frontend-client
+
+      - name: Build frontend
+        run: npm --prefix frontend-client run build
+
+      - name: Install backend dependencies
+        run: npm ci --prefix backend/music_api
+
+      - name: Test backend
+        run: npm --prefix backend/music_api test
+
+  deploy:
+    name: Deploy to production
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Configure SSH
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$HOME/.ssh/deploy_key"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/deploy_key" "$HOME/.ssh/known_hosts"
+
+      - name: Update application on server
+        shell: bash
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          DEPLOY_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          ssh \
+            -i "$HOME/.ssh/deploy_key" \
+            -o IdentitiesOnly=yes \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            -o ConnectTimeout=20 \
+            "$SSH_USER@$SSH_HOST" \
+            bash -se -- "$DEPLOY_SHA" <<'REMOTE'
+          set -euo pipefail
+
+          cd /home/jweeks12/Focal/Pomodoro-Timer
+
+          # Refuse to overwrite tracked local changes.
+          if ! git diff --quiet || ! git diff --cached --quiet; then
+            echo "Deployment stopped: checkout has uncommitted changes."
+            exit 1
+          fi
+
+          # Deploy the exact commit that passed the checks.
+          git fetch origin "$1"
+          git checkout --detach FETCH_HEAD
+
+          # Build the frontend served by the existing Nginx container.
+          npm ci --prefix frontend-client
+          npm --prefix frontend-client run build
+
+          # Rebuild and update the production containers.
+          docker compose -f compose.production.yaml \
+            up --build -d --wait --wait-timeout 120
+
+          # Verify the application locally.
+          curl --fail --silent --show-error \
+            --retry 5 --retry-delay 3 --retry-all-errors \
+            --max-time 30 \
+            http://127.0.0.1:8080/ > /dev/null
+
+          curl --fail --silent --show-error \
+            --retry 5 --retry-delay 3 --retry-all-errors \
+            --max-time 30 \
+            http://127.0.0.1:8080/api/playlists/ > /dev/null
+          REMOTE
+
+      - name: Verify public website
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for url in \
+            https://usefocal.net/ \
+            https://usefocal.net/api/playlists/
+          do
+            curl --fail --silent --show-error \
+              --retry 5 --retry-delay 5 --retry-all-errors \
+              --max-time 30 \
+              "$url" > /dev/null
+          done
+
+      - name: Remove deployment key
+        if: always()
+        shell: bash
+        run: rm -f "$HOME/.ssh/deploy_key"
