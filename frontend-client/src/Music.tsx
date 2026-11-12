@@ -21,7 +21,7 @@ function MusicPlayer({ playlistName, queue }: MusicPlayerProps) {
   // Changing index plays that song; the cleanup stops the music when the player goes away.
   useEffect(() => {
     if (!queue.length) return;
-    playSong(`http://localhost:3000/api/songs/${playlistName}/${queue[index].id}`);
+    playSong(`/api/songs/${playlistName}/${queue[index].id}`);
     return stopSong;
   }, [playlistName, queue, index]);
 

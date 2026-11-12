@@ -11,7 +11,7 @@ function MusicSelectionForm() {
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
 
   async function loadPlaylists() {
-    const res = await fetch("http://localhost:3000/api/playlists/");
+    const res = await fetch("/api/playlists/");
     const playlistsJSON = await res.json();
 
     setPlaylists(playlistsJSON);

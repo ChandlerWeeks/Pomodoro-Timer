@@ -10,4 +10,9 @@ export default defineConfig({
     tailwindcss(),
     babel({ presets: [reactCompilerPreset()] })
   ],
+  // The frontend calls relative /api paths; in dev, Vite forwards them to the backend.
+  // In Docker, API_URL points at the backend service instead of localhost.
+  server: {
+    proxy: { '/api': process.env.API_URL ?? 'http://localhost:3000' },
+  },
 })
