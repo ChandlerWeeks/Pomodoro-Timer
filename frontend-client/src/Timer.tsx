@@ -22,7 +22,13 @@ function Timer({minutes, seconds, playlistName, disableTimerCallback} : TimeProp
   async function getSongQueue() {
     if (!playlistName) return;
     const res = await fetch(`/api/playlists/${playlistName}/songs`);
-    const songQueueJSON = await res.json();
+    const songQueueJSON: Song[] = await res.json();
+
+    // Fisher–Yates shuffle: swap each song with a random one at or before it, so every order is equally likely.
+    for (let i = songQueueJSON.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [songQueueJSON[i], songQueueJSON[j]] = [songQueueJSON[j], songQueueJSON[i]];
+    }
 
     setMusicQueue(songQueueJSON);
   }
