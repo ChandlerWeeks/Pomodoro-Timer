@@ -11,6 +11,9 @@ dist/
 
 .DS_Store
 
+# Machine-local deployment state and backups
+.deploy/
+
 # Music, playlists, and catalog are kept out of the repo
 backend/music_api/data/**
 !backend/music_api/data/music/

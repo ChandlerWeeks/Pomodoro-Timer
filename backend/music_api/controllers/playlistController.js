@@ -51,7 +51,11 @@ const getSongs = (req, res) => {
   // Field names match the Song type in the frontend's Timer.tsx.
   return res.send(tracks.map(id => {
     const song = songs[`${playlistId}-${id}`];
-    return { id, trackName: song.title, trackLength: song.duration_seconds };
+    // Keep recording details in the credits and shorten rain mixes in the player.
+    const trackName = /^rainy[ -]window$/i.test(playlistId)
+      ? song.title.replace(/\s+\+\s+.*$/, " (rain)")
+      : song.title;
+    return { id, trackName, trackLength: song.duration_seconds };
   }));
 }
 

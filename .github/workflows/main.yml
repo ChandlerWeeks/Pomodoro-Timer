@@ -8,7 +8,6 @@ on:
 permissions:
   contents: read
 
-# Prevent overlapping deployments without interrupting an active one.
 concurrency:
   group: pomodoro-production
   cancel-in-progress: false
@@ -18,118 +17,60 @@ jobs:
     name: Build and test
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
     steps:
-      - name: Check out the triggering commit
-        uses: actions/checkout@v6
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: "26"
           cache: npm
           cache-dependency-path: |
             frontend-client/package-lock.json
             backend/music_api/package-lock.json
-
-      - name: Install frontend dependencies
-        run: npm ci --prefix frontend-client
-
-      - name: Build frontend
-        run: npm --prefix frontend-client run build
-
-      - name: Install backend dependencies
-        run: npm ci --prefix backend/music_api
-
-      - name: Test backend
-        run: npm --prefix backend/music_api test
+      - run: npm ci --prefix frontend-client
+      - run: npm --prefix frontend-client run build
+      - run: npm ci --prefix backend/music_api
+      - run: npm --prefix backend/music_api test
+      - name: Validate production configuration
+        run: |
+          bash -n deploy/watch-production.sh
+          bash -n deploy/install-watcher.sh
+          docker compose -f compose.production.yaml config --quiet
 
   deploy:
     name: Deploy to production
     needs: check
     runs-on: ubuntu-latest
     timeout-minutes: 20
-
+    permissions:
+      contents: write
     steps:
-      - name: Configure SSH
-        shell: bash
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
-        run: |
-          set -euo pipefail
-          install -d -m 700 "$HOME/.ssh"
-          printf '%s\n' "$SSH_PRIVATE_KEY" > "$HOME/.ssh/deploy_key"
-          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
-          chmod 600 "$HOME/.ssh/deploy_key" "$HOME/.ssh/known_hosts"
+      - uses: actions/checkout@v6
+      - name: Publish the tested commit for the server
+        run: git push origin HEAD:refs/heads/production
 
-      - name: Update application on server
+      - name: Wait for the live site to confirm deployment
         shell: bash
         env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
           DEPLOY_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-
-          ssh \
-            -i "$HOME/.ssh/deploy_key" \
-            -o IdentitiesOnly=yes \
-            -o BatchMode=yes \
-            -o StrictHostKeyChecking=yes \
-            -o ConnectTimeout=20 \
-            "$SSH_USER@$SSH_HOST" \
-            bash -se -- "$DEPLOY_SHA" <<'REMOTE'
-          set -euo pipefail
-
-          cd /home/jweeks12/Focal/Pomodoro-Timer
-
-          # Refuse to overwrite tracked local changes.
-          if ! git diff --quiet || ! git diff --cached --quiet; then
-            echo "Deployment stopped: checkout has uncommitted changes."
-            exit 1
-          fi
-
-          # Deploy the exact commit that passed the checks.
-          git fetch origin "$1"
-          git checkout --detach FETCH_HEAD
-
-          # Build the frontend served by the existing Nginx container.
-          npm ci --prefix frontend-client
-          npm --prefix frontend-client run build
-
-          # Rebuild and update the production containers.
-          docker compose -f compose.production.yaml \
-            up --build -d --wait --wait-timeout 120
-
-          # Verify the application locally.
-          curl --fail --silent --show-error \
-            --retry 5 --retry-delay 3 --retry-all-errors \
-            --max-time 30 \
-            http://127.0.0.1:8080/ > /dev/null
-
-          curl --fail --silent --show-error \
-            --retry 5 --retry-delay 3 --retry-all-errors \
-            --max-time 30 \
-            http://127.0.0.1:8080/api/playlists/ > /dev/null
-          REMOTE
-
-      - name: Verify public website
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          for url in \
-            https://usefocal.net/ \
-            https://usefocal.net/api/playlists/
-          do
-            curl --fail --silent --show-error \
-              --retry 5 --retry-delay 5 --retry-all-errors \
-              --max-time 30 \
-              "$url" > /dev/null
+          for attempt in $(seq 1 100); do
+            deployed_sha="$(curl --fail --silent --show-error \
+              --connect-timeout 5 --max-time 10 \
+              -H 'Cache-Control: no-cache' \
+              "https://usefocal.net/.well-known/focal-deployment.json?run=${GITHUB_RUN_ID}&attempt=${attempt}" \
+              | python3 -c 'import json,sys; print(json.load(sys.stdin)["sha"])' \
+              || true)"
+            if [ "$deployed_sha" = "$DEPLOY_SHA" ]; then
+              curl --fail --silent --show-error --max-time 30 \
+                https://usefocal.net/ > /dev/null
+              curl --fail --silent --show-error --max-time 30 \
+                https://usefocal.net/api/playlists/ > /dev/null
+              echo "Production is serving $DEPLOY_SHA"
+              exit 0
+            fi
+            echo "Waiting for the server to deploy $DEPLOY_SHA ($attempt/100)"
+            sleep 10
           done
-
-      - name: Remove deployment key
-        if: always()
-        shell: bash
-        run: rm -f "$HOME/.ssh/deploy_key"
+          echo 'Deployment was not confirmed. Check: journalctl --user -u focal-deploy.service'
+          exit 1

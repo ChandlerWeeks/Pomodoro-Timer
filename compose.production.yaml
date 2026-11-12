@@ -1,0 +1,29 @@
+name: pomodoro-production
+
+services:
+  backend:
+    build: ./backend/music_api
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+    volumes:
+      - ${MUSIC_DATA_DIR:-./backend/music_api/data}:/home/node/app/data:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/playlists').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  frontend:
+    image: nginx:stable-alpine
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - ./frontend-client/dist:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped

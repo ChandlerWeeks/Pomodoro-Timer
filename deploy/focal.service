@@ -1,0 +1,20 @@
+[Unit]
+Description=Focal production application
+Requires=docker.service
+Wants=network-online.target
+After=docker.service network-online.target
+RequiresMountsFor=/home/jweeks12/Focal/Pomodoro-Timer
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=jweeks12
+WorkingDirectory=/home/jweeks12/Focal/Pomodoro-Timer
+ExecStartPre=/usr/bin/test -s /home/jweeks12/Focal/Pomodoro-Timer/frontend-client/dist/index.html
+ExecStart=/usr/bin/docker compose -f compose.production.yaml up --detach --no-build --pull never --wait --wait-timeout 120
+ExecStop=/usr/bin/docker compose -f compose.production.yaml stop --timeout 30
+TimeoutStartSec=150
+TimeoutStopSec=90
+
+[Install]
+WantedBy=multi-user.target

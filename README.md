@@ -59,6 +59,12 @@ These containers provide a local development environment with live reload.
 
 ## Deployment
 
+The live site at **https://usefocal.net** uses the production stack and automatic
+deployment described in [deploy/README.md](deploy/README.md). Pushes to `main`
+are built and tested in GitHub Actions before this machine applies them.
+
+The instructions below describe the development stack and SSH access to it.
+
 The supplied Compose configuration runs Vite's development server and Node's
 watch mode. Both ports bind to `127.0.0.1` on the Docker host. Use this setup on
 your own machine or access a remote host through the SSH tunnel below. Public
