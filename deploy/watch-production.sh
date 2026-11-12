@@ -39,6 +39,8 @@ fi
 echo "Building production commit $target"
 staging="$(mktemp -d "$root/.deploy/frontend.XXXXXX")"
 trap 'rm -rf -- "$staging"' EXIT
+# rsync -a copies this directory's mode onto dist; Nginx needs traversal access.
+chmod 755 "$staging"
 
 npm ci --prefix frontend-client
 npm --prefix frontend-client run build -- --outDir "$staging"
