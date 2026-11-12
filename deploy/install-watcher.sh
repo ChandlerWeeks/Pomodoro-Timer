@@ -19,7 +19,6 @@ WorkingDirectory=$root
 Environment="FOCAL_ROOT=$root"
 Environment="PATH=$node_dir:/usr/local/bin:/usr/bin:/bin"
 Environment=GIT_TERMINAL_PROMPT=0
-Environment="GIT_SSH_COMMAND=ssh -o BatchMode=yes -o ConnectTimeout=15"
 ExecStart=$script_dir/watch-production.sh
 TimeoutStartSec=15min
 UMask=0022
