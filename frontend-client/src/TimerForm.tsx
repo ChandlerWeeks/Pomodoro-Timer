@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { unlockSound } from "./sound.ts";
 import MusicSelectionForm from "./MusicSelectionForm.tsx";
+import Error from "./Error.tsx";
 
 interface TimerFormProps {
   setClock: (minutes: number, seconds: number, playlistName: string) => void;
@@ -9,9 +10,14 @@ interface TimerFormProps {
 function TimerForm({setClock} : TimerFormProps) {
   const [minutes, setMinutes] = useState("");
   const [seconds, setSeconds] = useState("");
+  const [isInvalidResponse, setIsInvalidResponse] = useState(false);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (Number(minutes) * 60 + Number(seconds) < 60) {
+      setIsInvalidResponse(true);
+      return
+    }
     unlockSound();
     const playlistName = String(new FormData(event.currentTarget).get("playlist") ?? "");
     setClock(Number(minutes), Number(seconds), playlistName);
@@ -20,7 +26,7 @@ function TimerForm({setClock} : TimerFormProps) {
   return(
     <>
       <div className="flex flex-1 justify-center items-center flex-col bg-gray-100">
-        <div className="border-1 border-black border-full p-10 rounded-md bg-white">
+        <div className="border border-black border-full p-10 rounded-md bg-white">
           <h1 className="text-4xl mb-8">Enter Timer Duration</h1>
           <form id="durationForm" onSubmit={handleSubmit}>
             <div className="flex justify-center items-center w-sm">
@@ -31,6 +37,10 @@ function TimerForm({setClock} : TimerFormProps) {
             <div className="flex justify-center items-center mt-2 w-sm">
               <label htmlFor="seconds" className="w-2/5">Seconds:  </label>
               <input type="number" value={seconds} placeholder="00" onChange={e => setSeconds(e.target.value)} className="border-solid border-black border-1 px-2 rounded-sm w-9/10" id="seconds" name="seconds" max="59" min="0"/>
+            </div>
+
+            <div className="flex justify-center items-center mt-4">
+              {isInvalidResponse && <Error message={"Time must be between 1 and 60 minutes"} severity={2} />}
             </div>
 
             <MusicSelectionForm />

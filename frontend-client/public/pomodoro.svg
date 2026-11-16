@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Tomato</title>
+  <desc id="desc">A red tomato with green leaves.</desc>
+  <!-- Original artwork. Dedicated to the public domain under CC0-1.0. -->
+  <path fill="#e74c3c" d="M64 32C36 16 12 39 12 67c0 29 22 49 52 49s52-20 52-49c0-28-24-51-52-35Z"/>
+  <path fill="#c0392b" d="M64 108c-27 0-47-16-51-40 0 28 22 48 51 48s51-20 51-48c-4 24-24 40-51 40Z"/>
+  <path d="M64 30c-2-8 0-15 6-20" fill="none" stroke="#287544" stroke-width="7" stroke-linecap="round"/>
+  <path fill="#348c51" d="m64 28-22-9 7 16-17 8 24 1 8 11 8-11 24-1-17-8 7-16Z"/>
+</svg>
